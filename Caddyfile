@@ -1,7 +1,7 @@
 {
     admin :20201
   }
-http://localhost:81 {
+:80 {
         root * .
 
         log {
@@ -9,10 +9,5 @@ http://localhost:81 {
                 level INFO
         }
 
-  @avif path_regexp avif ^(/banner/data/.*\.png)\@\.avif$
-  rewrite @avif {re.avif.1}
-
-  @webp path_regexp webp ^(/banner/data/.*\.png)\@.*\.webp$
-  rewrite @webp {re.webp.1}
         file_server
 }
