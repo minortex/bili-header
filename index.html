@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <!-- Release Version 157527 -->
+  <script>
+    window._GreyResult = {
+      method: "direct",
+      versionId: "157527",
+    }
+  </script>
+  <title></title>
+  <meta name="spm_prefix" content="333.934">
+  <meta charset="utf-8">
+  <meta name="description" content="bilibili是国内知名的视频弹幕网站，这里有最及时的动漫新番，最棒的ACG氛围，最有创意的Up主。大家可以在这里找到许多欢乐。">
+  <meta name="keywords"
+    content="Bilibili,哔哩哔哩,哔哩哔哩动画,哔哩哔哩弹幕网,弹幕视频,B站,弹幕,字幕,AMV,MAD,MTV,ANIME,动漫,动漫音乐,游戏,游戏解说,二次元,游戏视频,ACG,galgame,动画,番组,新番,初音,洛天依,vocaloid,日本动漫,国产动漫,手机游戏,网络游戏,电子竞技,ACG燃曲,ACG神曲,追新番,新番动漫,新番吐槽,巡音,镜音双子,千本樱,初音MIKU,舞蹈MMD,MIKUMIKUDANCE,洛天依原创曲,洛天依翻唱曲,洛天依投食歌,洛天依MMD,vocaloid家族,OST,BGM,动漫歌曲,日本动漫音乐,宫崎骏动漫音乐,动漫音乐推荐,燃系mad,治愈系mad,MAD MOVIE,MAD高燃">
+  <script>window.reportMsgObj = {}, window.reportConfig = { sample: 1, scrollTracker: !0, msgObjects: "reportMsgObj" }</script>
+  <link href="//s1.hdslb.com/bfs/static/jinkela/popular/css/popular.1.4ef4812966aab29dfb528f89631ebfe2b4eebf7d.css"
+    rel="stylesheet">
+  <link href="//s1.hdslb.com/bfs/static/jinkela/popular/css/popular.0.4ef4812966aab29dfb528f89631ebfe2b4eebf7d.css"
+    rel="stylesheet">
+</head>
+
+<body>
+  <div id="biliMainHeader" type="all" token-support="true" onlybanner=""></div>
+  <div id="popular-app"></div>
+  <div class="footer bili-footer"></div>
+  <script src="./js/bili-header.js"></script>
+  <script>const el = document.getElementById('biliMainHeader')
+    const header = new BiliHeader({
+      config: {
+        headerType: 'medium',
+        themeSwitchHandler: (theme) => {
+          window.dispatchEvent(new CustomEvent("themechange", { detail: theme }));
+        }
+      },
+    })
+    window.header = header
+    header.init(el)</script>
+  <div class="header-controls" aria-label="头图设置">
+    <span class="header-controls__label">季节</span>
+    <button type="button" class="is-active" data-header-season="seasons/2026-spring-summer/banner/header.json">2026 春夏</button>
+    <button type="button" data-header-season="seasons/2025-summer-winter/banner/header.json">2025 夏冬</button>
+    <button type="button" data-header-season="seasons/2020-winter/banner/frontpage.json">2020 冬</button>
+    <button type="button" id="toggle-logo">显示 Logo</button>
+    <button type="button" id="toggle-shadow">显示阴影</button>
+  </div>
+  <script src="./js/header-controls.js"></script>
+  <style>
+    .header-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px 12px; }
+    .header-controls__label { color:#61666d; font-size:13px; }
+    .header-controls button { padding:4px 10px; border:1px solid #ccd0d7; border-radius:4px; background:#fff; color:#18191c; cursor:pointer; }
+    .header-controls button.is-active { border-color:#00aeec; color:#00aeec; }
+    .international-header .primary-menu-itnl {
+      display: none !important
+    }
+
+    .international-footer .b-footer-wrap {
+      width: 1286px
+    }
+
+    .b-wrap {
+      width: 1370px
+    }
+
+    @media screen and (max-width:1870px) {
+      .b-wrap {
+        width: 1370px
+      }
+    }
+
+    @media screen and (max-width:1310px) {
+      .bili-banner .b-logo {
+        width: 1125px
+      }
+
+      .international-footer .b-footer-wrap {
+        width: 1070px
+      }
+    }
+  </style>
+</body>
+
+</html>
