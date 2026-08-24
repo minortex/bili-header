@@ -61,6 +61,7 @@
       '.local-bili-header-host{display:block;width:100%;min-width:1100px;margin:0;padding:0}',
       '.local-bili-header{position:relative;z-index:0;width:100%;min-width:1000px;height:clamp(155px,9.375vw,240px);overflow:hidden;background-color:#e3e5e7}',
       '.local-bili-header__layers{position:absolute;inset:0;overflow:hidden}',
+      '.local-bili-header__snow{position:absolute;inset:0;z-index:3;width:100%;height:100%;pointer-events:none}',
       '.local-bili-header__static{position:absolute;left:50%;top:0;width:100%;max-width:1920px;height:100%;transform:translateX(-50%);object-fit:cover;object-position:center top}',
       '.local-bili-header__shadow{position:absolute;top:0;left:0;z-index:1;width:100%;height:100px;background:linear-gradient(rgba(0,0,0,.4),transparent);pointer-events:none}',
       '.local-bili-header__layer{position:absolute;left:50%;top:50%;width:auto;height:auto;max-width:none;object-fit:cover}',
@@ -166,6 +167,7 @@
     banner.appendChild(layers);
     target.replaceChildren(banner);
     thisFeatureState(banner, options);
+    if (split && split.extensions && split.extensions.snow) createSnowEffect(banner, options.assetBase);
 
     var resize = function () {
       records.forEach(function (record) { resizeLayer(record, banner); });
@@ -217,6 +219,100 @@
       document.addEventListener('mouseleave', reset, { passive: true });
     }
     return banner;
+  }
+
+  function createSnowEffect(container, assetBase) {
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    var image = new Image();
+    var particles = [];
+    var animation = 0;
+    var returnAnimation = 0;
+    var active = false;
+    var lastX = 0;
+    var tilt = 0;
+    var lastTilt = 0;
+    var lastTime = 0;
+    var width = 0;
+    var height = 0;
+    canvas.className = 'local-bili-header__snow';
+    container.appendChild(canvas);
+    image.src = assetUrl('/banner/data/snowflake.png', assetBase);
+    var clamp = function (value, min, max) { return Math.max(min, Math.min(max, value)); };
+    var inverse = function (matrix, point) {
+      var determinant = matrix[0] * matrix[3] - matrix[1] * matrix[4];
+      return [
+        (matrix[3] * point[0] - matrix[1] * point[1] + matrix[1] * matrix[5] - matrix[2] * matrix[3]) / determinant,
+        (-matrix[4] * point[0] + matrix[0] * point[1] - matrix[0] * matrix[5] + matrix[2] * matrix[4]) / determinant
+      ];
+    };
+    var resize = function () {
+      var rect = container.getBoundingClientRect();
+      width = canvas.width = rect.width;
+      height = canvas.height = rect.height;
+    };
+    var draw = function (time) {
+      if (active) tilt = (tilt - clamp((lastX - lastTilt) / 2, -1, 1)) / 2;
+      lastTilt = lastX;
+      lastTime = time;
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.globalAlpha = 1;
+      context.clearRect(0, 0, width, height);
+      var matrix = [1, .5 * tilt, 0, .5 * tilt, 1, 0];
+      context.setTransform(matrix[0], matrix[3], matrix[1], matrix[4], matrix[2], matrix[5]);
+      var fade = Math.pow(tilt / 2 + .5, 4);
+      particles.forEach(function (flake, index) {
+        context.globalAlpha = index / particles.length > fade ? 1 - clamp(5 * (index / particles.length - fade), 0, 1) : 1;
+        flake.y += flake.speed;
+        flake.x += tilt * flake.speed * 10;
+        if (flake.y > height) { flake.x = (Math.random() - tilt) * width; flake.y = -25; }
+        var position = inverse(matrix, [flake.x, flake.y, 1]);
+        context.drawImage(image, position[0], position[1], 25 * Math.pow(1.18, -flake.z), 25 * Math.pow(1.18, -flake.z));
+      });
+      animation = requestAnimationFrame(draw);
+    };
+    var start = function () { cancelAnimationFrame(animation); animation = requestAnimationFrame(draw); };
+    image.onload = function () {
+      resize();
+      var count = Math.floor(500 / (window.devicePixelRatio || 1));
+      particles = new Array(count).fill(0).map(function () {
+        var z = (Math.random() * 9 + 1) * Math.exp(-.1);
+        return { x: Math.random() * width, y: Math.random() * height, z: z, speed: 2 / z };
+      });
+      start();
+    };
+    var onMouse = function (event) {
+      var rect = container.getBoundingClientRect();
+      if (event.clientY >= rect.top && event.clientY < rect.bottom) {
+        if (!active) { active = true; lastX = event.clientX; }
+        lastX = event.clientX;
+      } else if (active) leave();
+    };
+    var leave = function () {
+      if (!active) return;
+      active = false;
+      var from = tilt;
+      var started = performance.now();
+      cancelAnimationFrame(returnAnimation);
+      var step = function (time) {
+        var remaining = Math.max(0, 1 - (time - started) / 200);
+        tilt = from * remaining;
+        if (remaining) returnAnimation = requestAnimationFrame(step);
+      };
+      returnAnimation = requestAnimationFrame(step);
+    };
+    var onFocus = start;
+    var onBlur = function () { cancelAnimationFrame(animation); };
+    window.addEventListener('mousemove', onMouse, { passive: true });
+    document.addEventListener('mouseleave', leave, { passive: true });
+    window.addEventListener('resize', resize, { passive: true });
+    window.addEventListener('focus', onFocus);
+    window.addEventListener('blur', onBlur);
+    container._snowDestroy = function () {
+      cancelAnimationFrame(animation); cancelAnimationFrame(returnAnimation);
+      window.removeEventListener('mousemove', onMouse); document.removeEventListener('mouseleave', leave);
+      window.removeEventListener('resize', resize); window.removeEventListener('focus', onFocus); window.removeEventListener('blur', onBlur);
+    };
   }
 
   function thisFeatureState(banner, options) {
