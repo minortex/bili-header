@@ -231,6 +231,8 @@
     var returnAnimation = 0;
     var active = false;
     var lastX = 0;
+    var startX = 0;
+    var displace = 0;
     var tilt = 0;
     var lastTilt = 0;
     var lastTime = 0;
@@ -241,10 +243,14 @@
     image.src = assetUrl('/banner/data/snowflake.png', assetBase);
     var clamp = function (value, min, max) { return Math.max(min, Math.min(max, value)); };
     var inverse = function (matrix, point) {
-      var determinant = matrix[0] * matrix[3] - matrix[1] * matrix[4];
+      var denominator = matrix[1] * matrix[3] - matrix[0] * matrix[4];
+      var inverseMatrix = [
+        -matrix[4], matrix[1], -matrix[1] * matrix[5] + matrix[2] * matrix[4],
+        matrix[3], -matrix[0], -matrix[2] * matrix[3] + matrix[0] * matrix[5]
+      ].map(function (value) { return value / denominator; });
       return [
-        (matrix[3] * point[0] - matrix[1] * point[1] + matrix[1] * matrix[5] - matrix[2] * matrix[3]) / determinant,
-        (-matrix[4] * point[0] + matrix[0] * point[1] - matrix[0] * matrix[5] + matrix[2] * matrix[4]) / determinant
+        inverseMatrix[0] * point[0] + inverseMatrix[1] * point[1] + inverseMatrix[2],
+        inverseMatrix[3] * point[0] + inverseMatrix[4] * point[1] + inverseMatrix[5]
       ];
     };
     var resize = function () {
@@ -253,6 +259,7 @@
       height = canvas.height = rect.height;
     };
     var draw = function (time) {
+      canvas.dataset.snowFrame = String(time);
       if (active) tilt = (tilt - clamp((lastX - lastTilt) / 2, -1, 1)) / 2;
       lastTilt = lastX;
       lastTime = time;
@@ -261,7 +268,7 @@
       context.clearRect(0, 0, width, height);
       var matrix = [1, .5 * tilt, 0, .5 * tilt, 1, 0];
       context.setTransform(matrix[0], matrix[3], matrix[1], matrix[4], matrix[2], matrix[5]);
-      var fade = Math.pow(tilt / 2 + .5, 4);
+      var fade = Math.pow(displace / 2 + .5, 4);
       particles.forEach(function (flake, index) {
         context.globalAlpha = index / particles.length > fade ? 1 - clamp(5 * (index / particles.length - fade), 0, 1) : 1;
         flake.y += flake.speed;
@@ -280,24 +287,29 @@
         var z = (Math.random() * 9 + 1) * Math.exp(-.1);
         return { x: Math.random() * width, y: Math.random() * height, z: z, speed: 2 / z };
       });
+      canvas.dataset.snowReady = 'true';
+      canvas.dataset.snowCount = String(count);
       start();
     };
     var onMouse = function (event) {
       var rect = container.getBoundingClientRect();
       if (event.clientY >= rect.top && event.clientY < rect.bottom) {
-        if (!active) { active = true; lastX = event.clientX; }
+        if (!active) { active = true; startX = event.clientX; lastX = event.clientX; }
         lastX = event.clientX;
+        displace = (event.clientX - startX) / rect.width;
       } else if (active) leave();
     };
     var leave = function () {
       if (!active) return;
       active = false;
       var from = tilt;
+      var fromDisplace = displace;
       var started = performance.now();
       cancelAnimationFrame(returnAnimation);
       var step = function (time) {
         var remaining = Math.max(0, 1 - (time - started) / 200);
         tilt = from * remaining;
+        displace = fromDisplace * remaining;
         if (remaining) returnAnimation = requestAnimationFrame(step);
       };
       returnAnimation = requestAnimationFrame(step);
