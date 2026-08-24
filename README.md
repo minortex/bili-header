@@ -9,4 +9,4 @@ const header = new BiliHeader({ config: { theme: 'light', showLogo: true } })
 header.init(document.querySelector('#biliMainHeader'))
 ```
 
-旧版包已移到 `js/vendor/` 作为参考，不再被页面加载。更换季节时只需传入对应的 `config.dataUrl`，例如 `winter/banner/header.json`；旧版 `frontpage.json` 也支持，脚本会自动识别 `logo + litpic` 字段。若不需要视差，可设置 `config.parallax = false`。logo 和顶部阴影默认关闭，可通过 `config.showLogo`、`config.showShadow` 或运行时的 `header.toggleFeature('logo'/'shadow')` 开关控制。
+旧版包已移到 `js/vendor/` 作为参考，不再被页面加载。更换季节时只需传入对应的 `config.dataUrl`，例如 `seasons/2025-summer-winter/banner/header.json`；旧版 `frontpage.json` 也支持，脚本会自动识别 `logo + litpic` 字段。若不需要视差，可设置 `config.parallax = false`。logo 和顶部阴影默认关闭，可通过 `config.showLogo`、`config.showShadow` 或运行时的 `header.toggleFeature('logo'/'shadow')` 开关控制。
