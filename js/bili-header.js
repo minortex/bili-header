@@ -25,7 +25,8 @@
       var url = new URL(source, document.baseURI);
       // The extracted JSON contains the original localhost host. Keep assets
       // portable when the archive is served from another host or port.
-      var path = url.hostname === 'localhost' ? url.pathname + url.search : url.href;
+      var local = url.hostname === 'localhost' || url.origin === window.location.origin;
+      var path = local ? url.pathname + url.search : url.href;
       if (assetBase && path.indexOf('/banner/') === 0) return assetBase + path;
       return path;
     } catch (_) {
