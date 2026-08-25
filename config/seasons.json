@@ -2,6 +2,18 @@
   "default": "spring-summer-2026",
   "seasons": [
     {
+      "id": "2022-summer",
+      "label": "2022-summer",
+      "dataUrl": "seasons/2022-summer/banner/header.json",
+      "assetBase": "seasons/2022-summer"
+    },
+    {
+      "id": "2022-spring",
+      "label": "2022-spring",
+      "dataUrl": "seasons/2022-spring/banner/header.json",
+      "assetBase": "seasons/2022-spring"
+    },
+    {
       "id": "2022-autumn",
       "label": "2022-autumn",
       "dataUrl": "seasons/2022-autumn/banner/header.json",
