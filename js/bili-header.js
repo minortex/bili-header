@@ -4,7 +4,8 @@
 
   var STYLE_ID = 'local-bili-header-style';
   var DEFAULTS = {
-    dataUrl: 'seasons/2026-spring-summer/banner/header.json',
+    dataUrl: null,
+    assetBase: null,
     height: null,
     parallax: true,
     showLogo: false,
@@ -160,7 +161,7 @@
     } else if (data.pic || data.litpic) {
       var fallback = document.createElement('img');
       fallback.className = 'local-bili-header__fallback';
-      fallback.src = assetUrl(data.pic || data.litpic);
+      fallback.src = assetUrl(data.pic || data.litpic, options.assetBase);
       fallback.alt = data.name || 'Bilibili banner';
       layers.appendChild(fallback);
     }
@@ -369,14 +370,16 @@
     var theme = self.config.theme || 'light';
     document.documentElement.dataset.theme = theme;
     if (typeof self.config.themeSwitchHandler === 'function') self.config.themeSwitchHandler(theme);
-    return this.load(self.config.dataUrl);
+    return self.config.dataUrl ? this.load(self.config.dataUrl) : Promise.resolve(element);
   };
 
-  BiliHeader.prototype.load = function (dataUrl) {
+  BiliHeader.prototype.load = function (season) {
     var self = this;
     if (!this.target) return Promise.reject(new Error('BiliHeader.init must be called before load'));
-    this.config.dataUrl = dataUrl || this.config.dataUrl;
-    this.config.assetBase = this.config.dataUrl.replace(/\/banner\/[^/]+\.json(?:[?#].*)?$/, '');
+    var selection = typeof season === 'string' ? { dataUrl: season } : (season || {});
+    if (!selection.dataUrl && !this.config.dataUrl) return Promise.reject(new Error('BiliHeader.load requires dataUrl'));
+    this.config.dataUrl = selection.dataUrl || this.config.dataUrl;
+    this.config.assetBase = selection.assetBase || (typeof season === 'string' ? null : this.config.assetBase) || this.config.dataUrl.replace(/\/banner\/[^/]+\.json(?:[?#].*)?$/, '');
     return fetch(this.config.dataUrl).then(function (response) {
       if (!response.ok) throw new Error('Unable to load banner data (' + response.status + ')');
       return response.json();
