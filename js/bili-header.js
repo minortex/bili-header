@@ -104,8 +104,9 @@
     banner.setAttribute('aria-label', data.name || 'Bilibili banner');
     var backgroundSource = data.pic || (data.logo ? data.litpic : null);
     var logoSource = data.logo || (data.pic ? data.litpic : null);
+    var staticImage = null;
     if (backgroundSource) {
-      var staticImage = document.createElement('img');
+      staticImage = document.createElement('img');
       staticImage.className = 'local-bili-header__static';
       staticImage.src = assetUrl(backgroundSource, options.assetBase);
       staticImage.alt = '';
@@ -133,8 +134,24 @@
     var layers = document.createElement('div');
     layers.className = 'local-bili-header__layers';
 
-    var split;
-    try { split = typeof data.split_layer === 'string' ? JSON.parse(data.split_layer) : data.split_layer; } catch (_) { split = null; }
+    var splitEnabled = data.is_split_layer === 1 || data.is_split_layer === '1';
+    var split = null;
+    if (splitEnabled) {
+      try { split = typeof data.split_layer === 'string' ? JSON.parse(data.split_layer) : data.split_layer; } catch (_) { split = null; }
+    }
+    var extensions = split && split.extensions;
+    if (extensions && global.BiliHeaderExtensions) {
+      Object.keys(extensions).forEach(function (name) {
+        var extension = extensions[name];
+        var handler = global.BiliHeaderExtensions[name];
+        if (!handler || !extension || !extension.video) return;
+        handler(banner, extension.video, options, assetUrl, {
+          staticImage: staticImage,
+          logoLink: logoLink,
+          shadow: shadow
+        });
+      });
+    }
     var entries = split && Array.isArray(split.layers) ? split.layers : [];
     var records = [];
     if (entries.length) {
