@@ -44,6 +44,7 @@
   <div class="header-controls" aria-label="头图设置">
     <span class="header-controls__label">季节</span>
     <span id="header-seasons" class="header-controls__seasons" aria-live="polite"></span>
+    <span id="header-times" class="header-controls__times" aria-live="polite" hidden></span>
     <button type="button" id="toggle-logo">显示 Logo</button>
     <button type="button" id="toggle-shadow">显示阴影</button>
   </div>
@@ -51,6 +52,7 @@
   <style>
     .header-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px 12px; }
     .header-controls__label { color:#61666d; font-size:13px; }
+    .header-controls__times { display:flex; gap:8px; }
     .header-controls button { padding:4px 10px; border:1px solid #ccd0d7; border-radius:4px; background:#fff; color:#18191c; cursor:pointer; }
     .header-controls button.is-active { border-color:#00aeec; color:#00aeec; }
     .international-header .primary-menu-itnl {

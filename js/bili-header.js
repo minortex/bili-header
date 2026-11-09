@@ -153,6 +153,28 @@
       });
     }
     var entries = split && Array.isArray(split.layers) ? split.layers : [];
+    var timeOptions = null;
+    if (Array.isArray(data.timeGroups) && data.timeGroups.length) {
+      entries = [];
+      timeOptions = [];
+      data.timeGroups.forEach(function (group, groupIndex) {
+        timeOptions.push({ label: group.name || ('时段 ' + (groupIndex + 1)), index: groupIndex });
+        (group.layers || []).forEach(function (layer) {
+          var entry = Object.assign({}, layer);
+          entry.timeIndex = groupIndex;
+          entries.push(entry);
+        });
+      });
+    } else if (Array.isArray(data.timeLayers) && data.timeLayers.length) {
+      entries = data.timeLayers.map(function (layer, index) {
+        var entry = Object.assign({}, layer);
+        entry.timeIndex = Number(layer.timeIndex == null ? index : layer.timeIndex);
+        return entry;
+      });
+      timeOptions = entries.map(function (layer, index) {
+        return { label: layer.name || ('时段 ' + (index + 1)), index: layer.timeIndex };
+      });
+    }
     var records = [];
     if (entries.length) {
       entries.forEach(function (layer) {
@@ -163,6 +185,7 @@
         var initialTranslate = layer.translate && layer.translate.initial || [0, 0];
         var initialRotate = layer.rotate && Number(layer.rotate.initial) || 0;
         var record = { image: image, layer: layer, scale: scale, initialTranslate: initialTranslate, initialRotate: initialRotate };
+        record.timeIndex = layer.timeIndex == null ? null : Number(layer.timeIndex);
         records.push(record);
         var readyEvent = image.tagName === 'VIDEO' ? 'loadedmetadata' : 'load';
         image.addEventListener(readyEvent, function () {
@@ -183,6 +206,23 @@
       layers.appendChild(fallback);
     }
     banner.appendChild(layers);
+    if (timeOptions && timeOptions.length) {
+      banner._timeOptions = timeOptions;
+      banner._setTime = function (index) {
+        var target = Number(index);
+        if (isNaN(target)) target = timeOptions[0].index;
+        banner._activeTime = target;
+        records.forEach(function (record) {
+          if (record.timeIndex == null) return;
+          var visible = record.timeIndex === target;
+          record.image.hidden = !visible;
+          if (record.image.tagName === 'VIDEO') {
+            if (visible) record.image.play().catch(function () {}); else record.image.pause();
+          }
+        });
+      };
+      banner._setTime(timeOptions[0].index);
+    }
     target.replaceChildren(banner);
     thisFeatureState(banner, options);
     if (split && split.extensions && split.extensions.snow) createSnowEffect(banner, options.assetBase);
@@ -397,7 +437,7 @@
     if (!selection.dataUrl && !this.config.dataUrl) return Promise.reject(new Error('BiliHeader.load requires dataUrl'));
     this.config.dataUrl = selection.dataUrl || this.config.dataUrl;
     this.config.assetBase = selection.assetBase || (typeof season === 'string' ? null : this.config.assetBase) || this.config.dataUrl.replace(/\/banner\/[^/]+\.json(?:[?#].*)?$/, '');
-    return fetch(this.config.dataUrl).then(function (response) {
+    return fetch(this.config.dataUrl, { cache: 'no-store' }).then(function (response) {
       if (!response.ok) throw new Error('Unable to load banner data (' + response.status + ')');
       return response.json();
     }).then(function (payload) {
@@ -424,6 +464,12 @@
   BiliHeader.prototype.toggleFeature = function (name) {
     var key = name === 'logo' ? 'showLogo' : 'showShadow';
     return this.setFeature(name, !this.config[key]);
+  };
+
+  BiliHeader.prototype.setTime = function (index) {
+    if (!this.banner || typeof this.banner._setTime !== 'function') return false;
+    this.banner._setTime(index);
+    return true;
   };
 
   global.BiliHeader = BiliHeader;

@@ -1,17 +1,23 @@
 {
-  "default": "spring-summer-2026",
+  "default": "2026-spring-summer",
   "seasons": [
     {
-      "id": "2022-summer",
-      "label": "2022-summer",
-      "dataUrl": "seasons/2022-summer/banner/header.json",
-      "assetBase": "seasons/2022-summer"
+      "id": "2020-winter",
+      "label": "2020-winter",
+      "dataUrl": "seasons/2020-winter/banner/frontpage.json",
+      "assetBase": "seasons/2020-winter"
     },
     {
       "id": "2022-spring",
       "label": "2022-spring",
       "dataUrl": "seasons/2022-spring/banner/header.json",
       "assetBase": "seasons/2022-spring"
+    },
+    {
+      "id": "2022-summer",
+      "label": "2022-summer",
+      "dataUrl": "seasons/2022-summer/banner/header.json",
+      "assetBase": "seasons/2022-summer"
     },
     {
       "id": "2022-autumn",
@@ -62,28 +68,28 @@
       "assetBase": "seasons/2023-summer-night-1019"
     },
     {
-      "id": "2023-autumn-1122",
-      "label": "2023-autumn-1122",
-      "dataUrl": "seasons/2023-autumn-1122/banner/header.json",
-      "assetBase": "seasons/2023-autumn-1122"
-    },
-    {
       "id": "2023-autumn-1115",
       "label": "2023-autumn-1115",
       "dataUrl": "seasons/2023-autumn-1115/banner/header.json",
       "assetBase": "seasons/2023-autumn-1115"
     },
     {
-      "id": "2023-winter-night",
-      "label": "2023-winter-night",
-      "dataUrl": "seasons/2023-winter-night/banner/header.json",
-      "assetBase": "seasons/2023-winter-night"
+      "id": "2023-autumn-1122",
+      "label": "2023-autumn-1122",
+      "dataUrl": "seasons/2023-autumn-1122/banner/header.json",
+      "assetBase": "seasons/2023-autumn-1122"
     },
     {
       "id": "2023-winter-dawn",
       "label": "2023-winter-dawn",
       "dataUrl": "seasons/2023-winter-dawn/banner/header.json",
       "assetBase": "seasons/2023-winter-dawn"
+    },
+    {
+      "id": "2023-winter-night",
+      "label": "2023-winter-night",
+      "dataUrl": "seasons/2023-winter-night/banner/header.json",
+      "assetBase": "seasons/2023-winter-night"
     },
     {
       "id": "2024-spring",
@@ -110,34 +116,28 @@
       "assetBase": "seasons/2024-winter-2025-spring"
     },
     {
-      "id": "2026-summer",
-      "label": "2026-summer",
-      "dataUrl": "seasons/2026-summer/banner/header.json",
-      "assetBase": "seasons/2026-summer"
-    },
-    {
-      "id": "spring-summer-2026",
-      "label": "2026 春 - 夏",
-      "dataUrl": "seasons/2026-spring-summer/banner/header.json",
-      "assetBase": "seasons/2026-spring-summer"
-    },
-    {
-      "id": "2025-winter-2026-spring",
-      "label": "2025 冬 - 2026 春",
-      "dataUrl": "seasons/2025-winter-2026-spring/banner/header.json",
-      "assetBase": "seasons/2025-winter-2026-spring"
-    },
-    {
-      "id": "summer-winter-2025",
-      "label": "2025 夏 - 冬",
+      "id": "2025-summer-winter",
+      "label": "2025-summer-winter",
       "dataUrl": "seasons/2025-summer-winter/banner/header.json",
       "assetBase": "seasons/2025-summer-winter"
     },
     {
-      "id": "winter-2020",
-      "label": "2020 冬",
-      "dataUrl": "seasons/2020-winter/banner/frontpage.json",
-      "assetBase": "seasons/2020-winter"
+      "id": "2025-winter-2026-spring",
+      "label": "2025-winter-2026-spring",
+      "dataUrl": "seasons/2025-winter-2026-spring/banner/header.json",
+      "assetBase": "seasons/2025-winter-2026-spring"
+    },
+    {
+      "id": "2026-spring-summer",
+      "label": "2026-spring-summer",
+      "dataUrl": "seasons/2026-spring-summer/banner/header.json",
+      "assetBase": "seasons/2026-spring-summer"
+    },
+    {
+      "id": "2026-summer",
+      "label": "2026-summer",
+      "dataUrl": "seasons/2026-summer/banner/header.json",
+      "assetBase": "seasons/2026-summer"
     }
   ]
 }

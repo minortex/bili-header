@@ -23,10 +23,10 @@ function usage() {
 示例:
   node tools/import-header.js \\
     'https://api.bilibili.com/x/web-show/page/header/v2?category=0&web_location=333.934' \\
-    --id spring-summer-2026 --label '2026 春 - 夏' --register
+    --id 2026-spring-summer --register
 
   node tools/import-header.js seasons/2026-summer/banner/header.json \\
-    --id spring-summer-2026 --label '2026 春 - 夏' --register`);
+    --id 2026-summer --register`);
 }
 
 function parseArgs(args) {
@@ -51,12 +51,42 @@ function safeName(value) {
   return String(value || '').trim().replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'import';
 }
 
+const SEASON_RANK = { spring: 0, summer: 1, autumn: 2, winter: 3 };
+
+function compareSeason(a, b) {
+  const partsA = String(a.id).split('-');
+  const partsB = String(b.id).split('-');
+  const yearA = Number(partsA[0]) || 0;
+  const yearB = Number(partsB[0]) || 0;
+  const rankA = SEASON_RANK[partsA[1]] ?? 9;
+  const rankB = SEASON_RANK[partsB[1]] ?? 9;
+  return yearA - yearB || rankA - rankB || String(a.id).localeCompare(String(b.id));
+}
+
 function extFor(url, contentType) {
   const pathname = new URL(url).pathname;
   const ext = path.extname(pathname).toLowerCase();
   if (['.png', '.jpg', '.jpeg', '.webp', '.gif', '.webm', '.mp4'].includes(ext)) return ext;
   const type = (contentType || '').split(';')[0].toLowerCase();
   return ({ 'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp', 'image/gif': '.gif', 'video/webm': '.webm', 'video/mp4': '.mp4' })[type] || '.bin';
+}
+
+const SOURCE_FIELDS = new Set(['src', 'pic', 'litpic', 'logo']);
+
+function eachSource(node, visit) {
+  if (Array.isArray(node)) {
+    node.forEach((item) => eachSource(item, visit));
+    return;
+  }
+  if (!node || typeof node !== 'object') return;
+  for (const [key, value] of Object.entries(node)) {
+    if (key === 'split_layer') continue;
+    if (SOURCE_FIELDS.has(key) && typeof value === 'string' && value) {
+      visit(value, node, key);
+      continue;
+    }
+    eachSource(value, visit);
+  }
 }
 
 async function fetchJson(url) {
@@ -83,7 +113,7 @@ async function readInput(input) {
   catch (error) { throw new Error(`输入不是有效 JSON: ${error.message}`); }
   const data = payload && payload.data && typeof payload.data === 'object' ? payload.data : payload;
   if (!data || typeof data !== 'object') throw new Error('JSON 中没有有效数据对象');
-  if (!data.split_layer) throw new Error('JSON 中没有 split_layer');
+  if (!data.split_layer && !data.timeLayers && !data.timeGroups) throw new Error('JSON 中没有 split_layer、timeLayers 或 timeGroups');
   return { payload: payload.data ? payload : { code: 0, message: '0', ttl: 1, data }, baseUrl: `file://${path.resolve(input)}` };
 }
 
@@ -120,15 +150,16 @@ async function main() {
   await fs.mkdir(assetDir, { recursive: true });
 
   const sources = new Set();
-  for (const field of ['pic', 'litpic']) if (data[field]) sources.add(data[field]);
+  eachSource(data, (source) => sources.add(source));
   let split;
   try { split = typeof data.split_layer === 'string' ? JSON.parse(data.split_layer) : data.split_layer; }
   catch (_) { throw new Error('split_layer 不是有效 JSON'); }
-  for (const layer of split?.layers || []) for (const resource of layer.resources || []) if (resource.src) sources.add(resource.src);
+  if (split) eachSource(split, (source) => sources.add(source));
 
   const localBySource = new Map();
   let downloaded = 0;
   for (const source of sources) {
+    if (source.startsWith('/banner/')) { localBySource.set(source, source); continue; }
     let absolute;
     try { absolute = new URL(source, input.baseUrl).href; }
     catch (_) { throw new Error(`资源 URL 无效: ${source}`); }
@@ -141,9 +172,9 @@ async function main() {
   }
 
   const localData = JSON.parse(JSON.stringify(data));
-  for (const field of ['pic', 'litpic']) if (localData[field]) localData[field] = localBySource.get(localData[field]);
+  eachSource(localData, (source, holder, key) => { holder[key] = localBySource.get(source) || source; });
   if (split) {
-    for (const layer of split.layers || []) for (const resource of layer.resources || []) if (resource.src) resource.src = localBySource.get(resource.src);
+    eachSource(split, (source, holder, key) => { holder[key] = localBySource.get(source) || source; });
     localData.split_layer = JSON.stringify(split);
   }
   const header = { ...payload, data: localData };
@@ -154,7 +185,8 @@ async function main() {
     const config = JSON.parse(await fs.readFile(configPath, 'utf8'));
     const season = { id, label: options.label || data.name || id, dataUrl: `${path.relative(ROOT, bannerDir)}/header.json`, assetBase: path.relative(ROOT, seasonDir) };
     config.seasons = (config.seasons || []).filter((item) => item.id !== id);
-    config.seasons.unshift(season);
+    config.seasons.push(season);
+    config.seasons.sort(compareSeason);
     await fs.writeFile(configPath, `${JSON.stringify(config, null, 2)}\n`, 'utf8');
   }
   console.log(`已导入: ${path.relative(ROOT, bannerDir)}/header.json`);
