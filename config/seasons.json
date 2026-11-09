@@ -8,6 +8,18 @@
       "assetBase": "seasons/2020-winter"
     },
     {
+      "id": "2021-summer",
+      "label": "2021-summer",
+      "dataUrl": "seasons/2021-summer/banner/header.json",
+      "assetBase": "seasons/2021-summer"
+    },
+    {
+      "id": "2021-winter",
+      "label": "2021-winter",
+      "dataUrl": "seasons/2021-winter/banner/header.json",
+      "assetBase": "seasons/2021-winter"
+    },
+    {
       "id": "2022-spring",
       "label": "2022-spring",
       "dataUrl": "seasons/2022-spring/banner/header.json",
@@ -138,6 +150,12 @@
       "label": "2026-summer",
       "dataUrl": "seasons/2026-summer/banner/header.json",
       "assetBase": "seasons/2026-summer"
+    },
+    {
+      "id": "2026-autumn",
+      "label": "2026-autumn",
+      "dataUrl": "seasons/2026-autumn/banner/header.json",
+      "assetBase": "seasons/2026-autumn"
     }
   ]
 }
