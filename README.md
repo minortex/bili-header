@@ -1,5 +1,7 @@
 ## 历程
 
+在线预览：<https://minortex.github.io/bili-header/>
+
 这次阿b使坏了，没有出现 `header.json` 而是直接访问一个 header/v2 获取，不过用图片url直接搜索，还是能找到这个路径的。
 
 当前页面使用通用的 `js/bili-header.js`，控件逻辑位于 `js/header-controls.js`。渲染器只依赖 Bilibili 的 `header.json` 协议，可用于不同季节的头图（包括 PNG、WebM/MP4 分层）。2022 秋季的特殊 Three.js 活动单独位于 `js/bili-header-autumn2022.js`，页面需要先加载它，再加载通用渲染器：
